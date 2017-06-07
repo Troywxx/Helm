@@ -2,7 +2,7 @@
 *.log
 config.py
 /venv/*
-/old version/*
+/oldversion/*
 
 <<<<<<< HEAD
 =======
