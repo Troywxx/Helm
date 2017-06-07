@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Watcher{% endblock %}
+
+{% block navbar %}
+<div class="container">
+  <div class="header clearfix">
+    <div class="row equal">
+        <div class="col-xs-6">
+            <h1 class="text-muted">气象产品监控</h1>
+        </div>
+        <div class="col-xs-2 col-xs-offset-2 col-bottom">
+            <h5 align="right">UTC {{time_utc}}</h5>
+        </div>
+        <div class="col-xs-2"> 
+            <h5 align="right">BJT {{time_bjt}}</h5>
+        </div>
+    </div>
+  </div>
+
+  <div class="jumbotron">
+    <h1>{{BJT_today}}</h1>        
+    <div class="row">
+      <div class="col-xs-3 col-xs-offset-3">
+        <h3 align="right" class="lead">产品状态  </h3>
+      </div>
+      <div class="col-xs-3">
+        {% if radar.alert or awos.alert or sat.alert %}
+        <h3 align="left" class="text-danger"><strong>异常</strong></h3>
+        {% else %}
+        <h3 align="left" class="lead text-success">正常</h3>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="marketing">
+    <h4>雷达图</h4>       
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>最新文件名:</p>
+      </div>
+      <div class="col-xs-1">
+        <p>{{radar.filename}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>上传时间:</p>
+      </div>
+      <div class="col-xs-1">
+        {% if radar.alert %}
+        <p class="text-danger bg-danger"><strong>{{radar.filetime}}</strong></p>
+        {% else %}
+        <p>{{radar.filetime}}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="marketing">
+    <h4>自动观测资料</h4>       
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>最新文件名:</p>
+      </div>
+      <div class="col-xs-1">
+        <p>{{awos.filename}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>上传时间:</p>
+      </div>
+      <div class="col-xs-3">
+        {% if awos.alert %}
+        <p class="text-danger bg-danger"><strong>{{awos.filetime}}</strong></p>
+        {% else %}
+        <p>{{awos.filetime}}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="marketing">
+    <h4>卫星云图</h4>       
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>最新文件名:</p>
+      </div>
+      <div class="col-xs-1">
+        <p>{{sat.filename}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>上传时间:</p>
+      </div>
+      <div class="col-xs-1">
+        {% if sat.alert %}
+        <p class="text-danger bg-danger"><strong>{{sat.filetime}}</strong></p>
+        {% else %}
+        <p>{{sat.filetime}}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p align="right">
+    海南空管气象台设备室
+    <br/>值班电话 : 0898-65751633
+    </p>
+  </footer>
+</div>
+{% endblock %}
+
+
