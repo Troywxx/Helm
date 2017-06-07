@@ -5,17 +5,9 @@
 {% block navbar %}
 <div class="container">
   <div class="header clearfix">
-    <div class="row equal">
-        <div class="col-xs-6">
-            <h1 class="text-muted">气象产品监控</h1>
-        </div>
-        <div class="col-xs-2 col-xs-offset-2 col-bottom">
-            <h5 align="right">UTC {{time_utc}}</h5>
-        </div>
-        <div class="col-xs-2"> 
-            <h5 align="right">BJT {{time_bjt}}</h5>
-        </div>
-    </div>
+    <h1 class="text-muted">气象产品监控
+    <small><span>UTC</span> {{time_utc}}  <span>BJT</span> {{time_bjt}}</small>
+    </h1>
   </div>
 
   <div class="jumbotron">
@@ -52,7 +44,7 @@
       <div class="col-xs-2 col-xs-offset-1">
         <p>上传时间:</p>
       </div>
-      <div class="col-xs-1">
+      <div class="col-xs-3">
         {% if radar.alert %}
         <p class="text-danger bg-danger"><strong>{{radar.filetime}}</strong></p>
         {% else %}
@@ -100,7 +92,7 @@
       <div class="col-xs-2 col-xs-offset-1">
         <p>上传时间:</p>
       </div>
-      <div class="col-xs-1">
+      <div class="col-xs-3">
         {% if sat.alert %}
         <p class="text-danger bg-danger"><strong>{{sat.filetime}}</strong></p>
         {% else %}

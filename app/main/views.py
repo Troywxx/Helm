@@ -26,12 +26,12 @@ def index():
         prd_ins.listen()
         
         prd_list_type = prd_config["prd_type"]
-        prd_list = Watchlist(prd_type=prd_list_type,inserttime=prd[0], alert=prd[1], filename=prd[2], filetime=prd[3])
+        prd_list = Watchlist(type=prd_list_type, alert=prd[0], filename=prd[1], filetime=prd[2])
         db.session.add(prd_list)
         db.session.commit()
 
-    radar = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(prd_type='radar').first()
-    awos = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(prd_type='awos').first()
-    sat = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(prd_type='satellite').first()
+    radar = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(type='radar').first()
+    awos = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(type='awos').first()
+    sat = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(type='satellite').first()
 
     return render_template('index.html', BJT_today=BJT_today, time_utc=time_utc, time_bjt=time_bjt, radar=radar, awos=awos, sat=sat)

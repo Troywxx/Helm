@@ -50,8 +50,6 @@ class Product(object):
         self.warn_time = product['warn_time']
         self.now = datetime.datetime.now()
         self.message = product['default_warn_messages']
-
-        self.login()
         
     def login(self, port=21, timeout=30):
         host, user, passwd, path = self.ftp_auth
@@ -93,10 +91,10 @@ class Product(object):
                 self.is_warned = time_sat_struct.is_warned()
                 log.debug('Satellite latest filename %s' % (self.latest_file_date))
 
-        inserttime = self.now.strftime("%Y%m%d %H:%M:%S")
+        # inserttime = self.now.strftime("%Y%m%d %H:%M:%S")
         # filetime = time.strftime("%Y%m%d %H:%M:%S", self.latest_file_date)
         
-        watchlist = [inserttime, self.is_warned, self.latest_filename, self.latest_file_date]
+        watchlist = [self.is_warned, self.latest_filename, self.latest_file_date]
         return watchlist
 
         ftp.quit()
