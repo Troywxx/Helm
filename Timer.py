@@ -64,6 +64,9 @@ class Timer(object):
 		elif self.prd_type == 'satellite':
 			filetime = self.get_sat_filetime()
 			return self.now - filetime > datetime.timedelta(minutes=self.warn_time)
+		else:
+			filetime = self.get_sat_filetime()
+			return self.now - filetime > datetime.timedelta(minutes=self.warn_time)
 
 
 # if __name__ == '__main__':

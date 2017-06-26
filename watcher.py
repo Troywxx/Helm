@@ -9,6 +9,7 @@ import requests
 from ftplib import FTP
 from Timer import Timer
 from config import config
+import json
 
 __version__ = 'v0.3.0'
 
@@ -39,7 +40,6 @@ def setup_log(debug=False):
 
 log = setup_log(debug=config['debug'])
 
-
 class Product(object):
     """docstring for Product"""
     def __init__(self, product):
@@ -50,6 +50,9 @@ class Product(object):
         self.warn_time = product['warn_time']
         self.now = datetime.datetime.now()
         self.message = product['default_warn_messages']
+        self.api = product['write_list_api']
+
+        self.login()
         
     def login(self, port=21, timeout=30):
         host, user, passwd, path = self.ftp_auth
@@ -90,13 +93,19 @@ class Product(object):
                 self.latest_file_date = time_sat_struct.get_sat_filetime()
                 self.is_warned = time_sat_struct.is_warned()
                 log.debug('Satellite latest filename %s' % (self.latest_file_date))
+            else:
+                time_sat_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
+                self.latest_file_date = time_sat_struct.get_sat_filetime()
+                self.is_warned = time_sat_struct.is_warned()
+                log.debug('Test latest filename %s' % (self.latest_file_date))
 
-        # inserttime = self.now.strftime("%Y%m%d %H:%M:%S")
-        # filetime = time.strftime("%Y%m%d %H:%M:%S", self.latest_file_date)
-        
-        watchlist = [self.is_warned, self.latest_filename, self.latest_file_date]
-        return watchlist
-
+        watchlist = {
+            'prd_type' : self.prd_type, 
+            'alert' : self.is_warned, 
+            'filename' : self.latest_filename, 
+            'filetime' : time.mktime(self.latest_file_date.timetuple())
+            }
+        response = requests.post(self.api, data = json.dumps(watchlist))
         ftp.quit()
 
     def is_warned(self):
@@ -142,7 +151,7 @@ def main():
     log.debug('Start in DEBUG mode')
 
 @click.command()
-@click.option('--service', '-s', type=click.Choice(['radar', 'awos', 'satellite', 'all']), multiple=True)
+@click.option('--service', '-s', type=click.Choice(['radar', 'awos', 'satellite', 'all', 'test']), multiple=True)
 def run(service):
     """-s, --service [name] Run watch service."""
     global config
@@ -153,16 +162,22 @@ def run(service):
     message = None
 
     while service:
-        config = load_config()
         products = config['products']
 
         if 'radar' in service:
-            listen(products['radar'], message)
+            prd = Product(products['radar'])
+            prd.listen()
         if 'awos' in service:
-            listen(products['awos'], message)
+            prd = Product(products['awos'])
+            prd.listen()
         if 'satellite' in service:
-            listen(products['satellite'], message)
-        time.sleep(300)
+            prd = Product(products['satellite'])
+            prd.listen()
+        if 'test' in service:
+            prd = Product(products['test'])
+            prd.listen()
+
+        time.sleep(60)
     else:
         click.echo("Error: please use 'run -s [name]' to start a service")
 
@@ -170,8 +185,4 @@ def run(service):
 main.add_command(run)
 
 if __name__ == '__main__':
-    # main()
-    products = config['products']
-    x = Product(products['test-s'])
-    y = Product(products['test-a'])
-    z = Product(products['test-r'])
+    main()

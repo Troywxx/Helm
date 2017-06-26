@@ -4,34 +4,12 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 from . import main
 from .. import db
-from ..watcher import Product
 from ..models import Watchlist
 from config import config
 import time
 import datetime
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET'])
 def index():
-
-    BJT_today = time.strftime("%Y %b %d")
-    time_utc = datetime.datetime.utcnow().strftime("%H:%M:%S")
-    time_bjt = datetime.datetime.now().strftime("%H:%M:%S")
-
-    products = config['products']
-    for key in products:
-        prd_config = products[key]
-        prd_ins = Product(products[key])
-        prd = prd_ins.login()
-        prd_ins.listen()
-        
-        prd_list_type = prd_config["prd_type"]
-        prd_list = Watchlist(type=prd_list_type, alert=prd[0], filename=prd[1], filetime=prd[2])
-        db.session.add(prd_list)
-        db.session.commit()
-
-    radar = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(type='radar').first()
-    awos = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(type='awos').first()
-    sat = Watchlist.query.order_by(Watchlist.id.desc()).filter_by(type='satellite').first()
-
-    return render_template('index.html', BJT_today=BJT_today, time_utc=time_utc, time_bjt=time_bjt, radar=radar, awos=awos, sat=sat)
+    return render_template('index.html')
