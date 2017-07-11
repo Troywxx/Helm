@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Helm{% endblock title %}
+
+{% block navbar %}
+<div class="container">
+  <div class="header clearfix">
+    <div>
+       <h1>气象产品监控
+       <small>
+         <span><strong>UTC</strong></span><span class="text-muted" id="time_utc"></span>
+         <span><strong>BJT</strong></span><span class="text-muted" id="time_bjt"></span>
+       </small>
+       </h1>
+    </div>
+  </div>
+
+  <div class="jumbotron">
+    <h1 id="date"></h1>        
+    <div class="row">
+      <div class="col-xs-3 col-xs-offset-3">
+        <h3 align="right" class="lead">产品状态  </h3>
+      </div>
+      <div class="col-xs-3">
+        <h3 align="left" id="alert" class="lead text-success"></h3>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock navbar %}
+
+{% block content %}
+<div class="container">
+  <div class="marketing">
+    <h4>雷达图</h4>       
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>最新文件名:</p>
+      </div>
+      <div class="col-xs-3">
+        <p id="radar_filename"></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>上传时间:</p>
+      </div>
+      <div class="col-xs-3">
+        <p id="radar_filetime"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="marketing">
+    <h4>自动观测资料</h4>       
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>最新文件名:</p>
+      </div>
+      <div class="col-xs-3">
+        <p id="awos_filename"></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>上传时间:</p>
+      </div>
+      <div class="col-xs-3">
+        <p id="awos_filetime"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="marketing">
+    <h4>卫星云图</h4>       
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>最新文件名:</p>
+      </div>
+      <div class="col-xs-3">
+        <p id="sat_filename"></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-2 col-xs-offset-1">
+        <p>上传时间:</p>
+      </div>
+      <div class="col-xs-3">
+        <p id="sat_filetime"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p align="right">
+      海南空管气象台设备室
+      <br/>值班电话 : 0898-65751633
+    </p>
+  </footer>
+
+</div>
+{% endblock content %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{url_for('static', filename='jquery-3.2.1.js')}}"></script>
+<script src="{{url_for('static', filename='myscript.js')}}"></script>
+{% endblock scripts %}
+
+
