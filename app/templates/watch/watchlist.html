@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Helm{% endblock title %}
+
+{% block page_content %}
+
+<div class="marketing">
+  <h4>雷达图</h4>       
+  <div class="row">
+    <div class="col-xs-2 col-xs-offset-1">
+      <p>最新文件名:</p>
+    </div>
+    <div class="col-xs-3">
+      <p id="radar_filename"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-2 col-xs-offset-1">
+      <p>上传时间:</p>
+    </div>
+    <div class="col-xs-3">
+      <p id="radar_filetime"></p>
+    </div>
+  </div>
+</div>
+
+<div class="marketing">
+  <h4>自动观测资料</h4>       
+  <div class="row">
+    <div class="col-xs-2 col-xs-offset-1">
+      <p>最新文件名:</p>
+    </div>
+    <div class="col-xs-3">
+      <p id="awos_filename"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-2 col-xs-offset-1">
+      <p>上传时间:</p>
+    </div>
+    <div class="col-xs-3">
+      <p id="awos_filetime"></p>
+    </div>
+  </div>
+</div>
+
+<div class="marketing">
+  <h4>卫星云图</h4>       
+  <div class="row">
+    <div class="col-xs-2 col-xs-offset-1">
+      <p>最新文件名:</p>
+    </div>
+    <div class="col-xs-3">
+      <p id="sat_filename"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-2 col-xs-offset-1">
+      <p>上传时间:</p>
+    </div>
+    <div class="col-xs-3">
+      <p id="sat_filetime"></p>
+    </div>
+  </div>
+</div>
+{% endblock page_content %}
+
+{% block scripts %}
+{{ moment.include_moment() }}
+{{ super() }}
+{% endblock scripts %}

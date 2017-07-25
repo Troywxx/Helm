@@ -4,6 +4,8 @@ from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
 import datetime
+from markdown import markdown
+import bleach
 
 class Watchlist(db.Model):
 	__tablename__ = 'watchlist'
@@ -56,6 +58,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     last_seen = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+    member_since = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -64,6 +67,24 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
+
+    @staticmethod
+    def generate_fake(count=100):
+        from sqlalchemy.exc import IntegrityError
+        from random import seed
+        import forgery_py
+
+        seed()
+        for i in range(count):
+            u = User(phonenumber=forgery_py.basic.text(length=11, digits=True),
+                     username=forgery_py.internet.user_name(True),
+                     password=forgery_py.lorem_ipsum.word(),
+                     member_since=forgery_py.date.date(True))
+            db.session.add(u)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
 
     @property
     def password(self):
@@ -90,6 +111,18 @@ class User(UserMixin, db.Model):
         self.last_seen = datetime.datetime.utcnow()
         db.session.add(self)
 
+    def reset_password(self, new_password):
+        self.password = new_password
+        db.session.add(self)
+        return True
+
+    def change_phonenumber(self, new_phonenumber):
+        if self.query.filter_by(phonenumber=new_phonenumber).first() is not None:
+            return False
+        self.phonenumber = new_phonenumber
+        db.session.add(self)
+        return True
+
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
         return False
@@ -112,3 +145,29 @@ class Post(db.Model):
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+
+        seed()
+        user_count = User.query.count()
+        for i in range(count):
+            u = User.query.offset(randint(0, user_count - 1)).first()
+            p = Post(body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                     timestamp=forgery_py.date.date(True),
+                     author=u)
+            db.session.add(p)
+            db.session.commit()
+
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
+
+db.event.listen(Post.body, 'set', Post.on_changed_body)

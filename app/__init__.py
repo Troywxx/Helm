@@ -4,11 +4,16 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_moment import Moment
 from config import config
 from flask_login import LoginManager
+from flask_pagedown import PageDown
+
+
 
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()
 moment = Moment()
+pagedown = PageDown()
+
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -23,6 +28,7 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
     moment.init_app(app)
+    pagedown.init_app(app)
 
 
     from .main import main as main_blueprint
@@ -33,6 +39,12 @@ def create_app(config_name):
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
+
+    from .watch import watch as watch_blueprint
+    app.register_blueprint(watch_blueprint, url_prefix='/watch')
+
+    from .workrecord import workrecord as workrecord_blueprint
+    app.register_blueprint(workrecord_blueprint, url_prefix='/workrecord')
 
     return app
 

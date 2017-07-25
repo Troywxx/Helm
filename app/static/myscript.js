@@ -9,6 +9,12 @@ $(document).ready(function() {
 	setInterval(time_show, 1000);
 });
 
+
+function postlist_delete(id){
+    console.log(typeof(id));
+}
+
+
 $(document).ready(function(){
 	function prd_show(){
 	var prd = new Array();

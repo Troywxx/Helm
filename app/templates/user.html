@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Helm - {{ user.username }}{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <div class="profile-header">
+        <h1>{{ user.username }}</h1>
+        {% if user.name %}
+        <p>
+            {{ user.name }}<br>
+        </p>
+        {% endif %}
+        {% if current_user.is_administrator() %}
+        <p>{{ user.phonenumber }}</p>
+        {% endif %}
+        <p>注册日期 {{ moment(user.member_since).format('L') }}. 
+        <br/>最近登录 {{ moment(user.last_seen).fromNow() }}.</p>
+        <p>{{ user.posts.count() }} 条工作日志</p>
+
+    </div>
+
+{% include '_posts.html' %}
+
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
+</div>
+{% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ moment.include_jquery() }}
+{{ moment.include_moment() }}
+{{ super() }}
+{% endblock scripts %}
