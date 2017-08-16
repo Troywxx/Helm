@@ -145,6 +145,9 @@ class Post(db.Model):
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    modify_count = db.Column(db.Integer, default=1)
+    deleted = db.Column(db.Boolean, default=False, index=True)
+    show_ack = db.Column(db.Boolean, default=True, index=True)
 
     @staticmethod
     def generate_fake(count=100):
@@ -169,5 +172,17 @@ class Post(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
+
+    @staticmethod
+    def add_self_basic_parameters():
+        for post in Post.query.all():
+            if post.modify_count is None:
+                post.modify_count = 1
+            if post.deleted is None:
+                post.deleted = False
+            if post.show_ack is None:
+                post.show_ack = True
+            db.session.add(post)
+            db.session.commit()
 
 db.event.listen(Post.body, 'set', Post.on_changed_body)

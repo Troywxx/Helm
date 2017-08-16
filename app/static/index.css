@@ -268,7 +268,7 @@ body {
     background-color: white;
     border-color: white;
     color: #e6e6e6; }
-    
+
 .button-circle {
   border-radius: 100%; }
 .button-circle,
@@ -445,4 +445,5 @@ div.flask-pagedown-preview h3 {
 .post-body h3 {
     font-size: 120%;
 }
+
 
