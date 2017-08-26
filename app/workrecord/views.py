@@ -16,7 +16,10 @@ def record_handler():
 	form = PostForm()
 	if form.validate_on_submit():
 		post = Post(body=form.body.data,
-	                author=current_user._get_current_object())
+	                worktype=form.worktype.data,
+	                event_starttime=form.event_starttime.data,
+	                author=current_user._get_current_object(),
+	                )
 		db.session.add(post)
 		return redirect(url_for('.record_handler'))
 	page = request.args.get('page', 1, type=int)

@@ -148,6 +148,8 @@ class Post(db.Model):
     modify_count = db.Column(db.Integer, default=1)
     deleted = db.Column(db.Boolean, default=False, index=True)
     show_ack = db.Column(db.Boolean, default=True, index=True)
+    worktype = db.Column(db.Text)
+    event_starttime = db.Column(db.DateTime)
 
     @staticmethod
     def generate_fake(count=100):
