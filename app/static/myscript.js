@@ -5,9 +5,9 @@ var sat = new Object();
 prd.radar = radar;
 prd.awos = awos;
 prd.satellite = sat;
-radar.url = "http://127.0.0.1:81/api/v1.0/watchlist/radar/get/";
-awos.url = "http://127.0.0.1:81/api/v1.0/watchlist/awos/get/";
-sat.url = "http://127.0.0.1:81/api/v1.0/watchlist/satellite/get/";
+radar.url = "/api/v1.0/watchlist/radar/get/";
+awos.url = "/api/v1.0/watchlist/awos/get/";
+sat.url = "/api/v1.0/watchlist/satellite/get/";
 
 
 function time_show(){
@@ -74,7 +74,8 @@ function prd_get(){
 		async: true,
 		type: "GET",
 		url: prd[j].url,
-		dataType: "json"
+		dataType: "json",
+		crossDomain:true
 	}).done(function(data){
 		$.each(data,function(i, item){
 				if(i == "Alert"){
@@ -95,7 +96,7 @@ $(document).ready(function() {
 	time_show();
 	setInterval(time_show, 1000);
 	prd_get();
-	setInterval(prd_get, 10000);
+	setInterval(prd_get, 1000);
 	prd_show();
-	setInterval(prd_show, 5000);
+	setInterval(prd_show, 1000);
 });
