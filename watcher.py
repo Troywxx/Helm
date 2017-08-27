@@ -2,14 +2,18 @@
 # -*- coding: UTF-8 -*-
 import sys
 import time
+import json
 import logging
 import datetime
+
 import click
 import requests
+
+from requests.exceptions import ConnectionError
+
 from ftplib import FTP
 from Timer import Timer
 from config import config
-import json
 
 __version__ = 'v0.3.0'
 
@@ -40,6 +44,15 @@ def setup_log(debug=False):
 
 log = setup_log(debug=config['debug'])
 
+def postdata(url, data):
+    try:
+        response = requests.post(url, data)
+    except ConnectionError:
+        log.warn('GET {} 408 Request Timeout'.format(url))
+
+    except Exception as e:
+        log.error(e, exc_info=True)
+
 class Product(object):
     """docstring for Product"""
     def __init__(self, product):
@@ -52,16 +65,24 @@ class Product(object):
         self.message = product['default_warn_messages']
         self.api = product['write_list_api']
 
-        self.login()
-        
+        self.process()
+
+    def process(self):
+        try:
+            self.login()
+            self.listen()
+        except Exception as e:
+            log.error(e, exc_info=True)
+
+
     def login(self, port=21, timeout=30):
         host, user, passwd, path = self.ftp_auth
-
+        files = []
+        
         ftp = FTP()
         ftp.connect(host, port, timeout)
         ftp.login(user, passwd)
         ftp.cwd(path)
-        files = []
         ftp.retrlines('LIST', lambda x: files.append(filter(None, x.split(' '))))
 
         if self.platform == 'win':
@@ -105,7 +126,9 @@ class Product(object):
             'filename' : self.latest_filename, 
             'filetime' : time.mktime(self.latest_file_date.timetuple())
             }
-        response = requests.post(self.api, data = json.dumps(watchlist))
+
+
+        postdata(self.api, json.dumps(watchlist))
         ftp.quit()
 
     def is_warned(self):
@@ -166,16 +189,12 @@ def run(service):
 
         if 'radar' in service:
             prd = Product(products['radar'])
-            prd.listen()
         if 'awos' in service:
             prd = Product(products['awos'])
-            prd.listen()
         if 'satellite' in service:
             prd = Product(products['satellite'])
-            prd.listen()
         if 'test' in service:
             prd = Product(products['test'])
-            prd.listen()
 
         time.sleep(60)
     else:

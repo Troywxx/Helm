@@ -5,9 +5,9 @@ var sat = new Object();
 prd.radar = radar;
 prd.awos = awos;
 prd.satellite = sat;
-radar.url = "http://127.0.0.1:5000/api/v1.0/watchlist/radar/get/";
-awos.url = "http://127.0.0.1:5000/api/v1.0/watchlist/awos/get/";
-sat.url = "http://127.0.0.1:5000/api/v1.0/watchlist/satellite/get/";
+radar.url = "http://127.0.0.1:81/api/v1.0/watchlist/radar/get/";
+awos.url = "http://127.0.0.1:81/api/v1.0/watchlist/awos/get/";
+sat.url = "http://127.0.0.1:81/api/v1.0/watchlist/satellite/get/";
 
 
 function time_show(){
