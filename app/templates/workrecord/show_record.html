@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Helm - WorkRecord{% endblock title %}
+
+{% block page_content %}
+
+<div>
+	<a href="{{ url_for('workrecord.add_record') }}" class="button button-small">添加日志</a>
+</div>
+
+{% include '_posts.html' %}
+
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.show_record') }}
+</div>
+{% endif %}
+
+{% endblock page_content %}
+
+{% block scripts %}
+{{ moment.include_jquery() }}
+{{ moment.include_moment() }}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock scripts %}

@@ -404,6 +404,7 @@ div.post-date {
     display: inline;
 }
 div.post-author {
+    float: right;
     font-weight: bold;
 }
 div.post-thumbnail {

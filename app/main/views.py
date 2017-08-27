@@ -26,38 +26,3 @@ def user(username):
         error_out=False)
     posts = pagination.items
     return render_template('user.html', user=user, posts=posts, pagination=pagination)
-
-@main.route('/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit(id):
-    post = Post.query.get_or_404(id)
-    if current_user != post.author and \
-            not current_user.can(Permission.ADMINISTER):
-        abort(403)
-    form = PostForm()
-    if form.validate_on_submit():
-        post_m = Post(body=form.body.data,
-                    author=current_user._get_current_object())
-        db.session.add(post_m)
-        db.session.commit()
-        post.modify_count += 1
-        post.show_ack = False
-        db.session.add(post)
-        db.session.commit()
-        flash('The post has been updated.')
-        return redirect(url_for('main.index'))
-    form.body.data = post.body
-    return render_template('edit_post.html', form=form)
-
-@main.route('/delete/<int:id>', methods=['GET', 'POST'])
-@login_required
-def delete(id):
-    post = Post.query.get_or_404(id)
-    if current_user != post.author and \
-            not current_user.can(Permission.ADMINISTER):
-            abort(403)
-    post.show_ack = False
-    post.deleted = True
-    db.session.add(post)
-    db.session.commit()
-    return redirect(url_for('main.index'))

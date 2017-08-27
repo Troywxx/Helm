@@ -1,31 +1,45 @@
 <ul class="posts">
 	{% for post in posts %}
+	{% if post.show_ack %}
 	<li class="post">
 		<div class="post-content">
+		<div class="row">
+		{% if post.event_endtime %}
+			<div class="col-xs-8">
+			{{ post.event_starttime.date() }} 
+			{{ post.event_starttime.time() }} 至 {{ post.event_endtime.time() }}
+			</div>	
 			<div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
+		{% endif %}
+		</div>
+		<div class="row">
+			<div class="col-xs-3">工作类型： {{ post.worktype }}</div>
+			<div class="col-xs-2 col-xs-offset-1">{{ post.worktag }}</div>
 			<div class="post-author"><a href="{{ url_for('main.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
-			<div class="post-body">
-				{% if post.body_html %}
-					{{ post.body_html | safe }}
-				{% else %}
-					{{ post.body }}
-				{% endif %}
-			</div>
-			<div class="post-footer">
-				{% if current_user == post.author %}
-				<a href="{{ url_for('main.edit', id=post.id) }}">
-					<span class="label label-primary">修正</span>
-				</a>
-				<button class="button button-circle button-caution button-tiny">
-				<a href="{{ url_for('main.delete', id=post.id) }}" style="color: #FFFFFF">删</a></button>
-				{% elif current_user.is_administrator() %}
-				<a href="{{ url_for('main.edit', id=post.id) }}">
-					<span class="label label-danger">修正 [管理员]</span>
-				</a>
-				<button class="button button-circle button-caution button-tiny"></i>删</button>
-				{% endif %}
-			</div>
+		</div>
+		<div class="post-body">
+			{% if post.body_html %}
+				{{ post.body_html | safe }}
+			{% else %}
+				{{ post.body }}
+			{% endif %}
+		</div>
+		<div class="post-footer">
+			{% if current_user == post.author %}
+			<a href="{{ url_for('workrecord.edit_record', id=post.id) }}">
+				<span class="label label-primary">编辑</span>
+			</a>
+			<a class="button button-circle button-caution button-tiny" href="{{ url_for('workrecord.delete_record', id=post.id) }}">
+			<p style="color: #FFFFFF">删</p></a>
+			{% elif current_user.is_administrator() %}
+			<a href="{{ url_for('workrecord.edit_record', id=post.id) }}">
+				<span class="label label-danger">编辑 [管理员]</span>
+			</a>
+			<button class="button button-circle button-caution button-tiny"></i>删</button>
+			{% endif %}
+		</div>
 		</div>
 	</li>
+	{% endif %}
 	{% endfor %}
 </ul>

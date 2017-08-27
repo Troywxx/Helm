@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Helm - Add Record{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>新建日志</h1>
+</div>
+{% if current_user.is_authenticated%}
+<div>
+{{ wtf.quick_form(form) }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
