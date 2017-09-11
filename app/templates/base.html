@@ -38,6 +38,7 @@
 	  </div>
 	  <div class="col-xs-3">
 		<h3 align="left" id="alert" class="lead text-success"></h3>
+		<button class="button-small">知道了</button>
 	  </div>
 	  <div class="col-xs-3">
 	  <h3 class="lead" align="right">
@@ -60,10 +61,13 @@
 	</div>
 	</div>
 
+
 </div>
 {% endblock navbar %}
 
 {% block content %}
+
+<audio id="watch" src="{{url_for('static', filename='cadiopulse.mp3')}}"></audio>
 
 <div class="container">
 {% block page_content %}

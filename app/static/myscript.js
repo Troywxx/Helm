@@ -18,9 +18,11 @@ function time_show(){
 	}
 
 function prd_show(){
+
 	if(prd.radar.alert||prd.awos.alert||prd.satellite.alert){
 		$("#alert").html("异常");
 		$("#alert").addClass("xalert");
+		$('#watch').get(0).play();
 	}
 	else{
 		$("#alert").html("正常");

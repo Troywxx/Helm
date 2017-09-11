@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import time
 import datetime
+from radar_check_config import check_clock, check_shift
 
 class Timer(object):
 
@@ -56,8 +57,22 @@ class Timer(object):
 
 	def is_warned(self):
 		if self.prd_type == 'radar':
-			filetime = self.get_radar_filetime()
-			return self.now - filetime > datetime.timedelta(minutes=self.warn_time)
+			filetime = datetime.datetime.utcfromtimestamp(time.mktime(datetime.datetime.timetuple(self.get_radar_filetime())))
+			# print filetime
+			for i in check_clock:
+				time_hour = datetime.datetime.strptime(i, "%H")
+				time_standard = datetime.datetime.combine(datetime.datetime.utcnow(), time_hour.time())
+				if self.utcnow.hour == time_standard.hour:
+					check_start = time_standard - datetime.timedelta(minutes=check_shift[0])
+					check_end = time_standard + datetime.timedelta(minutes=check_shift[1])
+					# print filetime
+					m = filetime > check_start
+					n = check_end > filetime
+					# print m,n
+					if m and n:
+						return True
+					else:
+						return False
 		elif self.prd_type == 'awos':
 			filetime = self.get_awos_filetime()
 			return self.utcnow - filetime > datetime.timedelta(minutes=self.warn_time)
@@ -69,12 +84,12 @@ class Timer(object):
 			return self.now - filetime > datetime.timedelta(minutes=self.warn_time)
 
 
-# if __name__ == '__main__':
-# 	config = {
-# 		'radar':['05-14-17', '08:54PM', '121286', 'TRBC2054.IPZ'],
-# 		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
-# 		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
-# 	}
+if __name__ == '__main__':
+	config = {
+		'radar':['09-11-17', '03:01PM', '121286', 'TRBC1501.IPZ'],
+		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
+		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
+	}
 
-# 	test = Timer('radar',config['radar'])
-# 	print test.is_warned()
+	test = Timer('radar', 180, config['radar'])
+	print test.is_warned()
