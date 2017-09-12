@@ -447,4 +447,7 @@ div.flask-pagedown-preview h3 {
     font-size: 120%;
 }
 
+div button .button-tiny {
+  float: left;
+}
 

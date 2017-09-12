@@ -84,12 +84,12 @@ class Timer(object):
 			return self.now - filetime > datetime.timedelta(minutes=self.warn_time)
 
 
-if __name__ == '__main__':
-	config = {
-		'radar':['09-11-17', '03:01PM', '121286', 'TRBC1501.IPZ'],
-		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
-		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
-	}
+# if __name__ == '__main__':
+# 	config = {
+# 		'radar':['09-11-17', '03:01PM', '121286', 'TRBC1501.IPZ'],
+# 		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
+# 		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
+# 	}
 
-	test = Timer('radar', 180, config['radar'])
-	print test.is_warned()
+# 	test = Timer('radar', 180, config['radar'])
+# 	print test.is_warned()

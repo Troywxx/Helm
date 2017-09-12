@@ -2,6 +2,8 @@ var prd = new Object();
 var radar = new Object();
 var awos = new Object();
 var sat = new Object();
+var alert_api = false;
+var alert_manual = true;
 prd.radar = radar;
 prd.awos = awos;
 prd.satellite = sat;
@@ -9,6 +11,23 @@ radar.url = "/api/v1.0/watchlist/radar/get/";
 awos.url = "/api/v1.0/watchlist/awos/get/";
 sat.url = "/api/v1.0/watchlist/satellite/get/";
 
+function alert_manual_set_true(){
+	alert_manual = true;
+}
+
+function alert_manual_set_false(){
+	alert_manual = false;
+	setTimeout('alert_manual_set_true()', 600000);
+}
+
+function alert_sound(){
+	if(alert_api && alert_manual){
+		$('#watch').get(0).play();
+	}
+	else{
+		$('#watch').get(0).pause();
+	}
+}
 
 function time_show(){
 	var t = new Date();
@@ -22,7 +41,7 @@ function prd_show(){
 	if(prd.radar.alert||prd.awos.alert||prd.satellite.alert){
 		$("#alert").html("异常");
 		$("#alert").addClass("xalert");
-		$('#watch').get(0).play();
+		alert_api = true;
 	}
 	else{
 		$("#alert").html("正常");
@@ -94,6 +113,8 @@ function prd_get(){
 }
 }
 
+
+
 $(document).ready(function() {
 	time_show();
 	setInterval(time_show, 1000);
@@ -101,4 +122,6 @@ $(document).ready(function() {
 	setInterval(prd_get, 1000);
 	prd_show();
 	setInterval(prd_show, 1000);
+	alert_sound();
+	setInterval(alert_sound, 1000);
 });
