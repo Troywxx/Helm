@@ -46,6 +46,7 @@ function prd_show(){
 	else{
 		$("#alert").html("正常");
 		$("#alert").removeClass("xalert");
+		alert_api = false;
 	}
 
 	if(prd.radar.alert){

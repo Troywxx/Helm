@@ -2,7 +2,12 @@
 # -*- coding: UTF-8 -*-
 import time
 import datetime
-from radar_check_config import check_clock, check_shift
+import ConfigParser
+
+config = ConfigParser.ConfigParser()
+config.read("radar_check_config.cfg")
+clock_items = config.items("check_clock")
+shift_items = config.items("check_shift")
 
 class Timer(object):
 
@@ -59,20 +64,29 @@ class Timer(object):
 		if self.prd_type == 'radar':
 			filetime = datetime.datetime.utcfromtimestamp(time.mktime(datetime.datetime.timetuple(self.get_radar_filetime())))
 			# print filetime
-			for i in check_clock:
-				time_hour = datetime.datetime.strptime(i, "%H")
+			for i in clock_items:
+				time_hour = datetime.datetime.strptime(i[0], "%H")
 				time_standard = datetime.datetime.combine(datetime.datetime.utcnow(), time_hour.time())
 				if self.utcnow.hour == time_standard.hour:
-					check_start = time_standard - datetime.timedelta(minutes=check_shift[0])
-					check_end = time_standard + datetime.timedelta(minutes=check_shift[1])
+					check_start = time_standard - datetime.timedelta(minutes=int(shift_items[0][1]))
+					check_end = time_standard + datetime.timedelta(minutes=int(shift_items[1][1]))
 					# print filetime
 					m = filetime > check_start
 					n = check_end > filetime
+					# print filetime
+					# print check_start,check_end
 					# print m,n
-					if m and n:
-						return True
-					else:
+					if m and n and i[1]=="False":
+						# print i[1]
+						config.set("check_clock", i[0], "True")
+						config.write(open("radar_check_config.cfg","w"))
+						# print i[1]
 						return False
+					else:
+						return True
+				elif self.utcnow.hour - time_standard.hour == 1:
+					config.set("check_clock", i[0], "False")
+					config.write(open("radar_check_config.cfg","w"))
 		elif self.prd_type == 'awos':
 			filetime = self.get_awos_filetime()
 			return self.utcnow - filetime > datetime.timedelta(minutes=self.warn_time)
@@ -84,12 +98,12 @@ class Timer(object):
 			return self.now - filetime > datetime.timedelta(minutes=self.warn_time)
 
 
-# if __name__ == '__main__':
-# 	config = {
-# 		'radar':['09-11-17', '03:01PM', '121286', 'TRBC1501.IPZ'],
-# 		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
-# 		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
-# 	}
+if __name__ == '__main__':
+	config1 = {
+		'radar':['09-12-17', '03:05PM', '121286', 'TRBC1505.IPZ'],
+		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
+		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
+	}
 
-# 	test = Timer('radar', 180, config['radar'])
-# 	print test.is_warned()
+	test = Timer('radar', 180, config1['radar'])
+	print test.is_warned()
