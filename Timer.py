@@ -67,16 +67,14 @@ class Timer(object):
 			for i in clock_items:
 				time_hour = datetime.datetime.strptime(i[0], "%H")
 				time_standard = datetime.datetime.combine(datetime.datetime.utcnow(), time_hour.time())
-				if self.utcnow.hour == time_standard.hour:
+				if self.utcnow.hour == time_standard.hour and i[1]=="False":
 					check_start = time_standard - datetime.timedelta(minutes=int(shift_items[0][1]))
-					check_end = time_standard + datetime.timedelta(minutes=int(shift_items[1][1]))
+					# check_end = time_standard + datetime.timedelta(minutes=int(shift_items[1][1]))
 					# print filetime
-					m = filetime > check_start
-					n = check_end > filetime
 					# print filetime
 					# print check_start,check_end
 					# print m,n
-					if m and n and i[1]=="False":
+					if filetime > check_start:
 						# print i[1]
 						config.set("check_clock", i[0], "True")
 						config.write(open("radar_check_config.cfg","w"))
@@ -100,7 +98,7 @@ class Timer(object):
 
 if __name__ == '__main__':
 	config1 = {
-		'radar':['09-12-17', '03:05PM', '121286', 'TRBC1505.IPZ'],
+		'radar':['09-13-17', '08:01AM', '121286', 'TRBC0801.IPZ'],
 		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
 		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
 	}
