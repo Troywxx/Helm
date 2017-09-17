@@ -1,0 +1,48 @@
+{ 
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": { 
+        "standard": { 
+            "format": "[%(asctime)s] %(name)s %(levelname)s %(message)s"
+        }
+    },
+    "handlers": { 
+        "default_file": { 
+            "level": "INFO",
+            "formatter": "standard",
+            "class": "logging.FileHandler",
+            "filename": "log/logging_test.log"
+        },
+        "default_stream":{
+            "level": "INFO",
+            "formatter": "standard",
+            "class": "logging.StreamHandler"
+        }
+    },
+    "loggers": { 
+        "BasicLog" : { 
+            "handlers": ["default_file"],
+            "filter":["BasicLog"],
+            "level": "INFO",
+            "propagate": false
+        },
+        "AlarmLog" : { 
+            "handlers": ["default_file"],
+            "filter":["AlarmLog"],
+            "level": "INFO",
+            "propagate": false
+        },
+        "TextLog" : { 
+            "handlers": ["default_file"],
+            "filter":["TextLog"],
+            "level": "INFO",
+            "propagate": false
+        },
+        "ErrorLog" : { 
+            "handlers": ["default_file"],
+            "filter":["ErrorLog"],
+            "level": "INFO",
+            "propagate": false
+        }
+    } 
+}

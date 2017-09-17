@@ -3,7 +3,7 @@
 import sys
 import time
 import json
-import logging
+import logging.config
 import datetime
 
 import click
@@ -17,41 +17,23 @@ from config import config
 
 __version__ = 'v0.3.0'
 
+path = 'log_dict_config.json'
+config = json.load(open(path, 'rt'))
+logging.config.dictConfig(config)
 
-def setup_log(debug=False):
-    log_level = logging.DEBUG if debug else logging.INFO
-
-    _format = '[%(asctime)s] %(name)s %(levelname)s %(message)s'
-    formatter = logging.Formatter(_format)
-
-    # set stdout
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-
-    # set log file
-    fh = logging.FileHandler('watch.log')
-    fh.setLevel(log_level)
-    fh.setFormatter(formatter)
-
-    # log
-    log = logging.getLogger(__name__)
-    log.setLevel(log_level)
-    log.addHandler(ch)
-    log.addHandler(fh)
-
-    return log
-
-log = setup_log(debug=config['debug'])
+logger_common = logging.getLogger("BasicLog") 
+logger_alarm = logging.getLogger("AlarmLog")
+logger_text = logging.getLogger("TextLog")
+logger_error = logging.getLogger("ErrorLog")
 
 def postdata(url, data):
     try:
         response = requests.post(url, data)
     except ConnectionError:
-        log.warn('GET {} 408 Request Timeout'.format(url))
+        logger_error.warn('GET {} 408 Request Timeout'.format(url))
 
     except Exception as e:
-        log.error(e, exc_info=True)
+        logger_error.error(e, exc_info=True)
 
 class Product(object):
     """docstring for Product"""
@@ -72,7 +54,7 @@ class Product(object):
             self.login()
             self.listen()
         except Exception as e:
-            log.error(e, exc_info=True)
+            logger_error.error(e, exc_info=True)
 
 
     def login(self, port=21, timeout=30):
@@ -98,7 +80,7 @@ class Product(object):
             time_radar_struct = Timer(self.prd_type, self.warn_time, latest_file)
             self.latest_file_date = time_radar_struct.get_radar_filetime()
             self.is_warned = time_radar_struct.is_warned()
-            log.debug('Radar latest filename %s, created date UTC+8 %s' % (self.latest_filename, self.latest_file_date))
+            logger_common.debug('Radar latest filename %s, created date UTC+8 %s' % (self.latest_filename, self.latest_file_date))
 
         else:
             self.latest_filename = files[-1][-1] 
@@ -108,17 +90,17 @@ class Product(object):
                 time_awos_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
                 self.latest_file_date = time_awos_struct.get_awos_filetime()
                 self.is_warned = time_awos_struct.is_warned()
-                log.debug('Awos latest filename %s' % (self.latest_file_date))
+                logger_common.debug('Awos latest filename %s' % (self.latest_file_date))
             elif self.prd_type == "satellite":
                 time_sat_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
                 self.latest_file_date = time_sat_struct.get_sat_filetime()
                 self.is_warned = time_sat_struct.is_warned()
-                log.debug('Satellite latest filename %s' % (self.latest_file_date))
+                logger_common.debug('Satellite latest filename %s' % (self.latest_file_date))
             else:
                 time_sat_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
                 self.latest_file_date = time_sat_struct.get_sat_filetime()
                 self.is_warned = time_sat_struct.is_warned()
-                log.debug('Test latest filename %s' % (self.latest_file_date))
+                logger_common.debug('Test latest filename %s' % (self.latest_file_date))
 
         watchlist = {
             'prd_type' : self.prd_type, 
@@ -144,14 +126,15 @@ class Product(object):
         if self.is_warned:
             message = self.message
             message = ' '.join([message, 'lost since', self.latest_filename])
-            log.info(message)
+            logger_text.info(message)
+            logger_alarm.info(message)
 
             enbale_phone_message = config['enbale_phone_message']
             api = config['api']
             if enbale_phone_message:
                 for phone_number in config['contacts']:
                     response = requests.post(api['message_url'], data={'token': api['token'], 'phone_number': phone_number, 'message': message })
-                    log.info(response.text)
+                    logger_text.info(response.text)
                     return response.json()
                     time.sleep(30)
 
@@ -171,7 +154,7 @@ def main():
     run -s [name] -s [name]        Start multiple services \n
     run -s all                     Start all services \n
     """
-    log.debug('Start in DEBUG mode')
+    logger_common.debug('Start in DEBUG mode')
 
 @click.command()
 @click.option('--service', '-s', type=click.Choice(['radar', 'awos', 'satellite', 'all', 'test']), multiple=True)
