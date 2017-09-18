@@ -18,8 +18,8 @@ from config import config
 __version__ = 'v0.3.0'
 
 path = 'log_dict_config.json'
-config = json.load(open(path, 'rt'))
-logging.config.dictConfig(config)
+log_config = json.load(open(path, 'rt'))
+logging.config.dictConfig(log_config)
 
 logger_common = logging.getLogger("BasicLog") 
 logger_alarm = logging.getLogger("AlarmLog")
