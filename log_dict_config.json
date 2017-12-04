@@ -8,31 +8,26 @@
     },
     "handlers": { 
         "default_file_common": { 
-            "level": "INFO",
             "formatter": "standard",
             "class": "logging.FileHandler",
             "filename": "log/logging_common.log"
         },
         "default_file_alarm": { 
-            "level": "INFO",
             "formatter": "standard",
             "class": "logging.FileHandler",
             "filename": "log/logging_alarm.log"
         },
         "default_file_text": { 
-            "level": "INFO",
             "formatter": "standard",
             "class": "logging.FileHandler",
             "filename": "log/logging_text.log"
         },
         "default_file_error": { 
-            "level": "INFO",
             "formatter": "standard",
             "class": "logging.FileHandler",
             "filename": "log/logging_error.log"
         },
         "default_stream":{
-            "level": "INFO",
             "formatter": "standard",
             "class": "logging.StreamHandler"
         }
@@ -41,25 +36,25 @@
         "BasicLog" : { 
             "handlers": ["default_file_common"],
             "filter":["BasicLog"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": false
         },
         "AlarmLog" : { 
             "handlers": ["default_file_alarm"],
             "filter":["AlarmLog"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": false
         },
         "TextLog" : { 
             "handlers": ["default_file_text"],
             "filter":["TextLog"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": false
         },
         "ErrorLog" : { 
             "handlers": ["default_file_error"],
             "filter":["ErrorLog"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": false
         }
     } 

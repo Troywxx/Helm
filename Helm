@@ -1,0 +1,3 @@
+sudo cp -r /var/www/Helm/ /home/zjhk/Work
+
+sudo supervisorctl restart

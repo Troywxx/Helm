@@ -24,14 +24,16 @@ class Timer(object):
 		date = self.files[0]
 		time = self.files[1]
 
-		year = '20' + date[6:]
-		month = date[0:2]
-		day = date[3:5]
-		hour_12 = time[0:2]
-		minute = time[3:5]
-		half_12 = time[5:]
-		time_string = year + ' ' + month + ' ' + day + ' ' + hour_12 + ' ' + minute + ' ' + half_12
-		time_radar_struct = datetime.datetime.strptime(time_string, "%Y %m %d %I %M %p")
+		filename = self.files
+
+		year = filename[0:4]
+		month = filename[4:6]
+		day = filename[6:8]
+		hour = filename[8:10]
+		minute = filename[10:12]
+
+		time_string = year + ' ' + month + ' ' + day + ' ' + hour + ' ' + minute
+		time_radar_struct = datetime.datetime.strptime(time_string, "%Y %m %d %H %M")
 		return time_radar_struct
 
 	def get_awos_filetime(self):
@@ -98,7 +100,7 @@ class Timer(object):
 
 if __name__ == '__main__':
 	config1 = {
-		'radar':['09-13-17', '08:01AM', '121286', 'TRBC0801.IPZ'],
+		'radar':'201711292004400.10P.100.2.jpg',
 		'awos':['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK'],
 		'satellite':['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
 	}

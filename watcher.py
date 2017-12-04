@@ -68,18 +68,20 @@ class Product(object):
         ftp.retrlines('LIST', lambda x: files.append(filter(None, x.split(' '))))
 
         if self.platform == 'win':
-            files_lst = files[0]
+            # files_lst = files[0]
 
-            for file in files:
-                if files_lst[0] in file and files_lst[1] in file:
-                    latest_file = file 
+            # for file in files:
+            #     if files_lst[0] in file and files_lst[1] in file:
+            #         latest_file = file 
                     #['05-14-17', '08:54PM', '121286', 'TRBC2054.IPZ']
 
-            self.latest_filename = latest_file[-1]
+            self.latest_filename = files[-1][-1]
+            # print(self.latest_filename)
 
-            time_radar_struct = Timer(self.prd_type, self.warn_time, latest_file)
+            time_radar_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
             self.latest_file_date = time_radar_struct.get_radar_filetime()
             self.is_warned = time_radar_struct.is_warned()
+            # print(self.is_warned)
             logger_common.debug('Radar latest filename %s, created date UTC+8 %s' % (self.latest_filename, self.latest_file_date))
 
         else:
