@@ -135,10 +135,10 @@ class Product(object):
             api = config['api']
             if enbale_phone_message:
                 for phone_number in config['contacts']:
-                    response = requests.post(api['message_url'], data={'token': api['token'], 'phone_number': phone_number, 'message': message })
+                    response = requests.post(api['message_url'], auth={'api', api['token']} ,data={'mobile': phone_number, 'text': message })
                     logger_text.info(response.text)
                     return response.json()
-                    time.sleep(30)
+                    # time.sleep(30)
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
