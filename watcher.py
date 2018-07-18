@@ -135,9 +135,11 @@ class Product(object):
             api = config['api']
             if enbale_phone_message:
                 for phone_number in config['contacts']:
-                    response = requests.post(api['message_url'], auth={'api', api['token']} ,data={'mobile': phone_number, 'text': message })
+                    response = requests.post(api['message_url'], auth=('api', api['token']),data={'mobile': phone_number, 'text': message })
+                    response.json()
                     logger_text.info(response.text)
-                    return response.json()
+                    logger_text.info(config['contacts'])
+                    
                     # time.sleep(30)
 
 def print_version(ctx, param, value):
