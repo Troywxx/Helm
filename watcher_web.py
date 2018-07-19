@@ -4,31 +4,30 @@ import requests
 import re
 
 from bs4 import BeautifulSoup
+from config import config
 
-p1 = re.compile(r'[[](.*?)[]]', re.S)  #最小匹配
-
-url = "http://172.17.1.166"
-rad = "/biz/Radar621/Radar.aspx?cccc=ZJHK"
-awos = "/biz/AWOS/awos_all.aspx?cccc=ZJHK"
+# url = "http://172.17.1.166"
+# rad = "/biz/Radar621/Radar.aspx?cccc=ZJHK"
+# awos = "/biz/AWOS/awos_all.aspx?cccc=ZJHK"
 # awos_net = "/biz/AWOS/96awos.aspx?cccc=ZJHK" 全国自观联网
-def webfile(url, prdtype):
+def product166(product166):
 
-    url += prdtype
-    cookies = {
-        'LoginCookiesGuid': '5274c2de-632d-4611-ac89-8fc3e173',
-        'LoginCookiesName': 'ZJHK'
-    }
+    url = product166['url_166']
+    prd_type = product166['prd_type']
+    cookies = config['cookie166']
+    
+    pattern = re.compile(r'[[](.*?)[]]', re.S)  #最小匹配
+
     response = requests.get(url, cookies=cookies, timeout=30)
     html = response.content
     soup = BeautifulSoup(html, "html.parser")
 
-    return soup
-# print soup.find(id="ListBox_Time").option.string #2018-07-18 08:17(UTC)
-# print soup.find(id="Repeater_RWYNO_ctl00_Label_RWYName").string #跑道01[2018-07-18 08:36(UTC)]
+    if prd_type == 'radar_166':
+        result = soup.find(id="ListBox_Time").option.string #2018-07-18 08:17(UTC)
+    elif prd_type == 'awos_166':
+        result = re.findall(pattern, soup.find(id="Repeater_RWYNO_ctl00_Label_RWYName").string)[0] #2018-07-18 08:36(UTC)
 
-    # f = open('166.txt', 'w')
-    # f.write(soup.encode('utf-8'))
+    return result
 
 if __name__ == "__main__":
-    print webfile(url, rad).find(id="ListBox_Time").option.string
-    print re.findall(p1, webfile(url, awos).find(id="Repeater_RWYNO_ctl00_Label_RWYName").string)[0]
+    product166(config['products']['radar_166'])

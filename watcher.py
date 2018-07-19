@@ -5,6 +5,7 @@ import time
 import json
 import logging.config
 import datetime
+import re
 
 import click
 import requests
@@ -12,10 +13,10 @@ import requests
 from requests.exceptions import ConnectionError
               
 from ftplib import FTP
-from Timer import Timer
 from config import config
+from bs4 import BeautifulSoup
 
-__version__ = 'v0.3.0'
+__version__ = 'v0.4.0'
 
 path = 'log_dict_config.json'
 log_config = json.load(open(path, 'rt'))
@@ -26,7 +27,55 @@ logger_alarm = logging.getLogger("AlarmLog")
 logger_text = logging.getLogger("TextLog")
 logger_error = logging.getLogger("ErrorLog")
 
+standard = config["radar_check"]["standard"]
+shift = config["radar_check"]["shift"]
+
+pattern = re.compile(r'\d', re.S)
+
+class Timestruct(object):
+    #Get standard UTC time and compare it with checktime to tell if it should be warned
+
+    def __init__(self, prd_type, warn_time, files):
+        self.prd_type= prd_type
+        self.warn_time = warn_time
+        self.files = "".join(re.findall(pattern, files))
+        self.now = datetime.datetime.now()
+        self.utcnow = datetime.datetime.utcnow()
+
+    def get_time_struct(self):
+        year = self.files[0:4]
+        month = self.files[4:6]
+        day = self.files[6:8]
+        hour = self.files[8:10]
+        minute = self.files[10:12]
+        time_string = year + ' ' + month + ' ' + day + ' ' + hour + ' ' + minute
+        time_struct = datetime.datetime.strptime(time_string, "%Y %m %d %H %M")
+        
+        if self.prd_type == 'radar':
+            time_struct = datetime.datetime.utcfromtimestamp(time.mktime(datetime.datetime.timetuple(time_struct)))
+
+        return time_struct
+
+    def is_warned(self):
+        if 'radar' in self.prd_type:
+            for i in standard:
+                time_hour = datetime.datetime.strptime(i, "%H%M")
+                time_standard = datetime.datetime.combine(datetime.datetime.utcnow(), time_hour.time())
+                start_time = time_standard - datetime.timedelta(minutes=shift)
+                if start_time < self.utcnow < time_standard:
+                    diff_time = time_standard - self.get_time_struct()
+                    check_time = datetime.timedelta(minutes=int(self.warn_time))
+                    if diff_time < check_time:
+                        return False
+                    else:
+                        return True
+        elif self.prd_type == 'satellite':
+            return self.now - self.get_time_struct() > datetime.timedelta(minutes=self.warn_time)
+        else:
+            return self.utcnow - self.get_time_struct() > datetime.timedelta(minutes=self.warn_time)
+
 def postdata(url, data):
+    #post json data to Flask-api
     try:
         response = requests.post(url, data)
     except ConnectionError:
@@ -35,7 +84,58 @@ def postdata(url, data):
     except Exception as e:
         logger_error.error(e, exc_info=True)
 
-class Product(object):
+def listen(is_warned, message, filetime):
+    if is_warned:
+        message = ' '.join([message, 'lost since', filetime])
+        logger_text.info(message)
+        logger_alarm.info(message)
+
+        enbale_phone_message = config['enbale_phone_message']
+        api = config['api']
+        if enbale_phone_message:
+            for phone_number in config['contacts']:
+                response = requests.post(api['message_url'], auth=('api', api['token']),data={'mobile': phone_number, 'text': message })
+                response.json()
+                logger_text.info(response.text)
+                logger_text.info(config['contacts'])    
+                # time.sleep(30)
+
+def product166(product166):
+    #Get filetime from 166
+
+    url = product166['url_166']
+    prd_type = product166['prd_type']
+    api = product166['write_list_api']
+    warn_time = product166['warn_time']
+    message = product166['default_warn_messages']
+
+    cookies = config['cookie166']
+    
+    pattern = re.compile(r'[[](.*?)[]]', re.S)  #最小匹配
+
+    response = requests.get(url, cookies=cookies, timeout=30)
+    html = response.content
+    soup = BeautifulSoup(html, "html.parser")
+
+    if prd_type == 'radar_166':
+        result = soup.find(id="ListBox_Time").option.string #2018-07-18 08:17(UTC)
+    elif prd_type == 'awos_166':
+        result = re.findall(pattern, soup.find(id="Repeater_RWYNO_ctl00_Label_RWYName").string)[0] #2018-07-18 08:36(UTC)
+
+    timestruct = Timestruct(prd_type, warn_time, result)
+    is_warned = timestruct.is_warned()
+    filetime = time.mktime(timestruct.timetuple())
+
+    watchlist = {
+            'prd_type' : prd_type, 
+            'alert' : is_warned, 
+            'filename' : None, 
+            'filetime' : filetime
+            }
+    postdata(api, json.dumps(watchlist))
+    listen(is_warned, message, timestruct)
+
+class Productlocal(object):
     """docstring for Product"""
     def __init__(self, product):
         self.prd_type = product['prd_type']
@@ -110,37 +210,9 @@ class Product(object):
             'filename' : self.latest_filename, 
             'filetime' : time.mktime(self.latest_file_date.timetuple())
             }
-
-
         postdata(self.api, json.dumps(watchlist))
+        listen(self.is_warned, self.message, self.latest_file_date)
         ftp.quit()
-
-    def is_warned(self):
-        return self.is_warned
-
-    def filetime(self):
-        return self.latest_file_date
-
-    def get_latest_filename(self):
-        return self.latest_filename
-
-    def listen(self):
-        if self.is_warned:
-            message = self.message
-            message = ' '.join([message, 'lost since', self.latest_filename])
-            logger_text.info(message)
-            logger_alarm.info(message)
-
-            enbale_phone_message = config['enbale_phone_message']
-            api = config['api']
-            if enbale_phone_message:
-                for phone_number in config['contacts']:
-                    response = requests.post(api['message_url'], auth=('api', api['token']),data={'mobile': phone_number, 'text': message })
-                    response.json()
-                    logger_text.info(response.text)
-                    logger_text.info(config['contacts'])
-                    
-                    # time.sleep(30)
 
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
@@ -161,13 +233,13 @@ def main():
     logger_common.debug('Start in DEBUG mode')
 
 @click.command()
-@click.option('--service', '-s', type=click.Choice(['radar', 'awos', 'satellite', 'all', 'test']), multiple=True)
+@click.option('--service', '-s', type=click.Choice(['radar', 'awos', 'satellite', 'radar_166', 'awos_166', 'all']), multiple=True)
 def run(service):
     """-s, --service [name] Run watch service."""
     global config
 
     if 'all' in service:
-        service = ('radar', 'awos', 'satellite')
+        service = ('radar', 'awos', 'satellite', 'radar_166', 'awos_166')
     
     message = None
 
@@ -180,8 +252,10 @@ def run(service):
             prd = Product(products['awos'])
         if 'satellite' in service:
             prd = Product(products['satellite'])
-        if 'test' in service:
-            prd = Product(products['test'])
+        if 'radar_166' in service:
+            prd = product166(products['radar_166'])
+        if 'awos_166' in service:
+            prd = product166(products['awos_166'])
 
         time.sleep(60)
     else:
