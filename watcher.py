@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import sys
-import time
 import json
 import logging.config
+import time
 import datetime
 import re
 
@@ -124,7 +124,8 @@ def product166(product166):
 
     timestruct = Timestruct(prd_type, warn_time, result)
     is_warned = timestruct.is_warned()
-    filetime = time.mktime(timestruct.timetuple())
+    filetime = time.mktime(datetime.datetime.timetuple(timestruct.get_time_struct()))
+    logger_common.debug('%s latest filetime %s' % (prd_type, timestruct.get_time_struct()))
 
     watchlist = {
             'prd_type' : prd_type, 
@@ -168,47 +169,29 @@ class Productlocal(object):
         ftp.retrlines('LIST', lambda x: files.append(filter(None, x.split(' '))))
 
         if self.platform == 'win':
-            # files_lst = files[0]
-
-            # for file in files:
-            #     if files_lst[0] in file and files_lst[1] in file:
-            #         latest_file = file 
-                    #['05-14-17', '08:54PM', '121286', 'TRBC2054.IPZ']
+            #['05-14-17', '08:54PM', '121286', 'TRBC2054.IPZ']
 
             self.latest_filename = files[-1][-1]
-            # print(self.latest_filename)
 
-            time_radar_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
-            self.latest_file_date = time_radar_struct.get_radar_filetime()
+            time_radar_struct = Timestruct(self.prd_type, self.warn_time, self.latest_filename)
+            self.latest_file_date = time_radar_struct.get_time_struct()
             self.is_warned = time_radar_struct.is_warned()
-            # print(self.is_warned)
-            logger_common.debug('Radar latest filename %s, created date UTC+8 %s' % (self.latest_filename, self.latest_file_date))
+            logger_common.debug('%s latest filename %s, created date UTC+8 %s' % (self.prd_type, self.latest_filename, self.latest_file_date))
 
         else:
             self.latest_filename = files[-1][-1] 
             #['-rw-rw-r--', '1', '702', '702', '6879', 'May', '14', '23:09', 'AWOS201705142309.JHK']
             #['-r--r--r--', '1', 'ftp', 'ftp', '814473', 'May', '15', '07:23', 'ISN201705150700.JPG']
-            if self.prd_type == "awos":
-                time_awos_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
-                self.latest_file_date = time_awos_struct.get_awos_filetime()
-                self.is_warned = time_awos_struct.is_warned()
-                logger_common.debug('Awos latest filename %s' % (self.latest_file_date))
-            elif self.prd_type == "satellite":
-                time_sat_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
-                self.latest_file_date = time_sat_struct.get_sat_filetime()
-                self.is_warned = time_sat_struct.is_warned()
-                logger_common.debug('Satellite latest filename %s' % (self.latest_file_date))
-            else:
-                time_sat_struct = Timer(self.prd_type, self.warn_time, self.latest_filename)
-                self.latest_file_date = time_sat_struct.get_sat_filetime()
-                self.is_warned = time_sat_struct.is_warned()
-                logger_common.debug('Test latest filename %s' % (self.latest_file_date))
+            time_awos_struct = Timestruct(self.prd_type, self.warn_time, self.latest_filename)
+            self.latest_file_date = time_awos_struct.get_time_struct()
+            self.is_warned = time_awos_struct.is_warned()
+            logger_common.debug(self.prd_type + ' latest filename %s' % (self.latest_file_date))
 
         watchlist = {
             'prd_type' : self.prd_type, 
             'alert' : self.is_warned, 
             'filename' : self.latest_filename, 
-            'filetime' : time.mktime(self.latest_file_date.timetuple())
+            'filetime' : time.mktime(datetime.datetime.timetuple(self.latest_file_date))
             }
         postdata(self.api, json.dumps(watchlist))
         listen(self.is_warned, self.message, self.latest_file_date)
@@ -247,11 +230,11 @@ def run(service):
         products = config['products']
 
         if 'radar' in service:
-            prd = Product(products['radar'])
+            prd = Productlocal(products['radar'])
         if 'awos' in service:
-            prd = Product(products['awos'])
+            prd = Productlocal(products['awos'])
         if 'satellite' in service:
-            prd = Product(products['satellite'])
+            prd = Productlocal(products['satellite'])
         if 'radar_166' in service:
             prd = product166(products['radar_166'])
         if 'awos_166' in service:

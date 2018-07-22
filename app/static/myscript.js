@@ -7,9 +7,13 @@ var alert_manual = true;
 prd.radar = radar;
 prd.awos = awos;
 prd.satellite = sat;
+prd.radar166 = radar166;
+prd.awos166 = awos166;
 radar.url = "/api/v1.0/watchlist/radar/get/";
 awos.url = "/api/v1.0/watchlist/awos/get/";
 sat.url = "/api/v1.0/watchlist/satellite/get/";
+radar166.url = "/api/v1.0/watchlist/radar_166/get/";
+awos166.url = "/api/v1.0/watchlist/awos_166/get/";
 
 function alert_manual_set_true(){
 	alert_manual = true;
@@ -38,7 +42,7 @@ function time_show(){
 
 function prd_show(){
 
-	if(prd.radar.alert||prd.awos.alert||prd.satellite.alert){
+	if(prd.radar.alert||prd.awos.alert||prd.radar166.alert||prd.awos166.alert){
 		$("#alert").html("异常");
 		$("#alert").addClass("xalert");
 		alert_api = true;
@@ -71,6 +75,24 @@ function prd_show(){
 	else{
 		$("#awos_filename").text(prd.awos.filename);
 		$("#awos_filename").removeClass("xalert");
+		$("#awos_filetime").text(prd.awos.filetime);
+		$("#awos_filetime").removeClass("xalert");
+	}
+
+	if(prd.radar166.alert){
+		$("#radar_filetime").text(prd.radar.filetime);
+		$("#radar_filetime").addClass("xalert");
+	}
+	else{
+		$("#radar_filetime").text(prd.radar.filetime);
+		$("#radar_filetime").removeClass("xalert");
+	}
+
+	if(prd.awos166.alert){
+		$("#awos_filetime").text(prd.awos.filetime);
+		$("#awos_filetime").addClass("xalert");
+	}
+	else{
 		$("#awos_filetime").text(prd.awos.filetime);
 		$("#awos_filetime").removeClass("xalert");
 	}
