@@ -2,18 +2,23 @@ var prd = new Object();
 var radar = new Object();
 var awos = new Object();
 var sat = new Object();
+var radar_166 = new Object();
+var awos_166 = new Object();
+
 var alert_api = false;
 var alert_manual = true;
+
 prd.radar = radar;
 prd.awos = awos;
 prd.satellite = sat;
-prd.radar166 = radar166;
-prd.awos166 = awos166;
+prd.radar_166 = radar_166;
+prd.awos_166 = awos_166;
+
 radar.url = "/api/v1.0/watchlist/radar/get/";
 awos.url = "/api/v1.0/watchlist/awos/get/";
 sat.url = "/api/v1.0/watchlist/satellite/get/";
-radar166.url = "/api/v1.0/watchlist/radar_166/get/";
-awos166.url = "/api/v1.0/watchlist/awos_166/get/";
+radar_166.url = "/api/v1.0/watchlist/radar_166/get/";
+awos_166.url = "/api/v1.0/watchlist/awos_166/get/";
 
 function alert_manual_set_true(){
 	alert_manual = true;
@@ -42,7 +47,7 @@ function time_show(){
 
 function prd_show(){
 
-	if(prd.radar.alert||prd.awos.alert||prd.radar166.alert||prd.awos166.alert){
+	if(prd.radar.alert||prd.awos.alert||prd.radar_166.alert||prd.awos_166.alert){
 		$("#alert").html("异常");
 		$("#alert").addClass("xalert");
 		alert_api = true;
@@ -79,21 +84,21 @@ function prd_show(){
 		$("#awos_filetime").removeClass("xalert");
 	}
 
-	if(prd.radar166.alert){
-		$("#radar_filetime").text(prd.radar.filetime);
+	if(prd.radar_166.alert){
+		$("#radar_166_filetime").text(prd.radar_166.filetime);
 		$("#radar_filetime").addClass("xalert");
 	}
 	else{
-		$("#radar_filetime").text(prd.radar.filetime);
+		$("#radar_166_filetime").text(prd.radar_166.filetime);
 		$("#radar_filetime").removeClass("xalert");
 	}
 
-	if(prd.awos166.alert){
-		$("#awos_filetime").text(prd.awos.filetime);
+	if(prd.awos_166.alert){
+		$("#awos_166_filetime").text(prd.awos_166.filetime);
 		$("#awos_filetime").addClass("xalert");
 	}
 	else{
-		$("#awos_filetime").text(prd.awos.filetime);
+		$("#awos_166_filetime").text(prd.awos_166.filetime);
 		$("#awos_filetime").removeClass("xalert");
 	}
 
@@ -123,6 +128,7 @@ function prd_get(){
 	}).done(function(data){
 		$.each(data,function(i, item){
 				if(i == "Alert"){
+					// console.log(typeof(item));
 					prd[data.Prd_Type].alert = item;
 				}
 				else if(i == "Filename"){

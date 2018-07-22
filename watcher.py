@@ -58,6 +58,7 @@ class Timestruct(object):
 
     def is_warned(self):
         if 'radar' in self.prd_type:
+            warning = False
             for i in standard:
                 time_hour = datetime.datetime.strptime(i, "%H%M")
                 time_standard = datetime.datetime.combine(datetime.datetime.utcnow(), time_hour.time())
@@ -66,9 +67,10 @@ class Timestruct(object):
                     diff_time = time_standard - self.get_time_struct()
                     check_time = datetime.timedelta(minutes=int(self.warn_time))
                     if diff_time < check_time:
-                        return False
+                        warning = False
                     else:
-                        return True
+                        warning = True
+            return warning
         elif self.prd_type == 'satellite':
             return self.now - self.get_time_struct() > datetime.timedelta(minutes=self.warn_time)
         else:
@@ -125,7 +127,7 @@ def product166(product166):
     timestruct = Timestruct(prd_type, warn_time, result)
     is_warned = timestruct.is_warned()
     filetime = time.mktime(datetime.datetime.timetuple(timestruct.get_time_struct()))
-    logger_common.debug('%s latest filetime %s' % (prd_type, timestruct.get_time_struct()))
+    logger_common.debug('%s latest filetime %s' % (prd_type, timestruct.get_time_struct())) 
 
     watchlist = {
             'prd_type' : prd_type, 
